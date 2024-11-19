@@ -1,0 +1,71 @@
+:sample-project: jmix-data-modeling-entity-inheritance-sample
+
+= Data Modeling: Entity Inheritance
+
+Entity inheritance is a key approach for structuring domain models with shared attributes and specialized behavior. In the Pet Clinic application, for example, pets share common fields like name and birthdate, but specific types such as cats or birds have unique properties. Similarly, visits to the clinic can vary in type, requiring distinct data fields.
+
+This guide explores JPA inheritance strategies and demonstrates their application in a Jmix project. Practical examples from the Pet Clinic domain model will illustrate how to choose the right strategy for different scenarios.
+
+[[requirements]]
+== Requirements
+
+If you want to implement this guide step by step, you will need the following:
+
+1. xref:ROOT:setup.adoc[Setup Jmix Studio]
+2. Download the sample project. You can **download the completed sample project**, which includes all the examples used in this guide. This allows you to explore the finished implementation and experiment with the functionality right away.
+* https://github.com/jmix-framework/{sample-project}/archive/refs/heads/main.zip[Download^] and unzip the source repository
+* or clone it using git:
+`git clone https://github.com/jmix-framework/{sample-project}.git`
+
+Alternatively, you can **start with the base Petclinic project** and follow the step-by-step instructions in this guide to implement the features yourself: https://github.com/jmix-framework/jmix-petclinic-2[Jmix Petclinic] and follow along to add the functionality step-by-step.
+
+[[what-we-are-going-to-build]]
+== What We are Going to Build
+
+This guide enhances the https://github.com/Jmix-framework/Jmix-petclinic-2[Jmix Petclinic^] example by implementing various JPA inheritance strategies:
+
+* **Mapped Superclass (NamedEntity):** We will look into the base class `NamedEntity` that centralizes common fields like `id`, `name`, and auditing attributes. Entities such as `Owner`, `PetType`, and `Specialty` inherit these fields.
+
+* **Joined Table Inheritance (Pet Hierarchy):** The `Pet` base class includes subclasses like `Cat` and `Bird`. Subclass-specific attributes are stored in their own tables, while polymorphic queries allow listing all pets.
+
+* **Single Table Inheritance (Visit Hierarchy):** The `Visit` base class encompasses subclasses like `RegularCheckup`, `EmergencyVisit`, and `FollowUp`. All visits are stored in a single table, enabling efficient polymorphic queries and simplifying associations.
+
+* **Table per Class Inheritance (Treatment Hierarchy):** The `Treatment` base class includes subclasses such as `Surgery`, `Medication`, and `Therapy`. Each subclass maps to its own table, with references to `Treatment` used for associations without polymorphic queries.
+
+These scenarios highlight the strengths and trade-offs of each inheritance strategy within the Pet Clinic domain.
+
+[[final-application]]
+=== Final Application
+
+video::zTYx_KSeMzY[youtube,width=1280,height=600]
+
+[[introduction]]
+== Introduction
+
+Business applications often deal with complex domains that require clear and maintainable representations of shared and specialized data. Entity inheritance allows us to model things that are very similar, but a different. It provides a way to define common attributes and behavior in a base class while letting subclasses add their own specifics. This not only avoids redundancy but also aligns closely with how developers think about their domain.
+
+In the Pet Clinic application, we could use entity inheritance to structure the domain model based on real use-cases like:
+
+* **Pets:** All pets share attributes such as `name` and `birthDate`, but specific types, such as cats and birds, introduce unique fields like `litterBoxTrained` or `canTalk`. Inheritance allows these specialized attributes to coexist with common ones, enabling operations like listing all pets or filtering by type.
+* **Visits:** Different types of visits, such as `RegularCheckup` or `EmergencyVisit`, require additional fields specific to their type. At the same time, all visits share common properties like `visitDate` and `reason`, which can be easily handled in the base class.
+
+[[impedance-mismatch]]
+=== Impedance Mismatch: Object Models vs. Relational Databases
+
+Object-oriented programming languages like Java naturally support inheritance, allowing developers to create hierarchies with shared attributes and specialized behavior. Polymorphism and method overriding make these hierarchies intuitive to design and maintain. In contrast, relational databases are built around flat, tabular structures, where data is stored in rows and columns without inherent support for hierarchical relationships. This fundamental difference is known as the "impedance mismatch" between object models and relational databases.
+
+To resolve this mismatch, mapping frameworks like JPA use a combination of techniques to bridge the gap. One common approach is to utilize multiple tables to represent an inheritance hierarchy. For example, a base entity might be stored in a separate table, while subclasses have their own tables containing specific attributes. When retrieving data, an SQL `SELECT` statement is used to join these tables, combining the base and subclass data into a single result set that can be mapped back to the object model. Additionally, metadata such as a discriminator column is often stored in the database. This metadata indicates the specific type of each entity, ensuring that data is accurately converted back into the correct Java object when loaded.
+
+Frameworks like JPA provide several strategies to handle these mappings, but these strategies vary significantly depending on the data structure and the types of queries the application needs to perform. For instance, some strategies prioritize read performance, while others focus on maintaining data integrity or avoiding redundancy. Choosing the wrong strategy can lead to inefficient queries, poor performance, or unnecessary complexity in the database schema.
+
+In this guide, we will explore how these strategies can be applied within the Petclinic domain to address real-world modeling challenges. Starting with Single Table Inheritance, we will work through examples that illustrate the strengths and appropriate use cases for each strategy.
+
+[[summary]]
+== Summary
+
+Two - three paragraphs of summary text
+
+[[further-information]]
+=== Further Information
+
+* xref:data-access:entity-events.adoc[]

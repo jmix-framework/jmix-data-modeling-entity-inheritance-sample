@@ -1,0 +1,29 @@
+Table Pet {
+  id UUID [pk]
+  name String
+  createdBy String
+  createdDate OffsetDateTime
+  lastModifiedBy String
+  lastModifiedDate OffsetDateTime
+  identificationNumber String [not null]
+  birthdate LocalDate
+}
+
+Table PetType {
+  id UUID [pk]
+  name String
+  createdBy String
+  createdDate OffsetDateTime
+  lastModifiedBy String
+  lastModifiedDate OffsetDateTime
+  color String
+}
+
+Table Specialty {
+  id UUID [pk]
+  name String
+  createdBy String
+  createdDate OffsetDateTime
+  lastModifiedBy String
+  lastModifiedDate OffsetDateTime
+}
