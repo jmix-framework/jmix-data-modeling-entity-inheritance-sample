@@ -4,21 +4,29 @@ import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.router.Route;
+import io.jmix.core.MessageTools;
+import io.jmix.core.Metadata;
 import io.jmix.core.metamodel.datatype.DatatypeFormatter;
 import io.jmix.core.security.CurrentAuthentication;
 import io.jmix.flowui.DialogWindows;
+import io.jmix.flowui.Dialogs;
+import io.jmix.flowui.UiComponents;
+import io.jmix.flowui.ViewNavigators;
+import io.jmix.flowui.app.inputdialog.DialogActions;
+import io.jmix.flowui.app.inputdialog.DialogOutcome;
+import io.jmix.flowui.app.inputdialog.InputParameter;
 import io.jmix.flowui.component.checkboxgroup.JmixCheckboxGroup;
 import io.jmix.flowui.component.select.JmixSelect;
 import io.jmix.flowui.component.tabsheet.JmixTabSheet;
 import io.jmix.flowui.kit.action.ActionPerformedEvent;
+import io.jmix.flowui.kit.component.ComponentUtils;
 import io.jmix.flowui.model.CollectionLoader;
 import io.jmix.flowui.model.DataContext;
 import io.jmix.flowui.view.*;
 import io.jmix.fullcalendarflowui.component.FullCalendar;
 import io.jmix.fullcalendarflowui.component.data.EntityCalendarEvent;
 import io.jmix.fullcalendarflowui.component.event.*;
-import io.jmix.petclinic.entity.visit.Visit;
-import io.jmix.petclinic.entity.visit.VisitType;
+import io.jmix.petclinic.entity.visit.*;
 import io.jmix.petclinic.view.main.MainView;
 import io.jmix.petclinic.view.visit.calendar.MonthFormatter;
 import org.slf4j.Logger;
@@ -28,17 +36,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
-import java.util.EnumSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
-
+// tag::start-class[]
 @Route(value = "visits", layout = MainView.class)
 @ViewController("petclinic_Visit.list")
 @ViewDescriptor("visit-list-view.xml")
 @DialogMode(width = "64em")
 public class VisitListView extends StandardListView<Visit> {
 
+    // end::start-class[]
     private static final Logger log = LoggerFactory.getLogger(VisitListView.class);
 
     @Autowired
@@ -63,6 +70,18 @@ public class VisitListView extends StandardListView<Visit> {
     private CollectionLoader<Visit> visitsDl;
     @ViewComponent
     private DataContext dataContext;
+    @Autowired
+    private Dialogs dialogs;
+    @Autowired
+    private MessageBundle messageBundle;
+    @Autowired
+    private UiComponents uiComponents;
+    @Autowired
+    private MessageTools messageTools;
+    @Autowired
+    private Metadata metadata;
+    @Autowired
+    private ViewNavigators viewNavigators;
 
     @Subscribe
     public void onInit(final InitEvent event) {
@@ -233,4 +252,55 @@ public class VisitListView extends StandardListView<Visit> {
             visitsDl.load();
         }
     }
+
+    // tag::type-selection[]
+    @Subscribe("visitsDataGrid.create")
+    public void onVisitsDataGridCreate(final ActionPerformedEvent event) {
+        dialogs.createInputDialog(this)
+                .withHeader(messageBundle.getMessage("createVisitsDialog.header"))
+                .withParameter(
+                        InputParameter.parameter("type")
+                                .withField(() -> {
+                                    JmixSelect<Class<? extends Visit>> select = createSelectComponent();
+
+                                    Map<Class<? extends Visit>, String> visitTypes = Map.of( // <1>
+                                        EmergencyVisit.class, entityCaption(EmergencyVisit.class),
+                                        RegularCheckup.class, entityCaption(RegularCheckup.class),
+                                        FollowUpVisit.class, entityCaption(FollowUpVisit.class)
+                                    );
+
+                                    ComponentUtils.setItemsMap(select, visitTypes);
+                                    return select;
+                                })
+                                .withLabel(messageBundle.getMessage("createVisitsDialog.selectLabel"))
+                )
+                .withActions(DialogActions.OK_CANCEL)
+                .withCloseListener(closeEvent -> {
+
+                    if (closeEvent.closedWith(DialogOutcome.OK)) {
+                        Class<? extends Visit> selectedType = closeEvent.getValue("type"); // <2>
+
+                        if (selectedType != null) {
+                            viewNavigators.detailView(this, selectedType) // <3>
+                                    .newEntity()
+                                    .navigate();
+                        }
+                    }
+                })
+                .open();
+    }
+
+    private JmixSelect<Class<? extends Visit>> createSelectComponent() {
+        JmixSelect<Class<? extends Visit>> select = uiComponents.create(JmixSelect.class);
+        select.setRequired(true);
+        select.setWidthFull();
+        return select;
+    }
+
+    private String entityCaption(Class<? extends Visit> entityClass) {
+        return messageTools.getEntityCaption(metadata.getClass(entityClass));
+    }
+    // end::type-selection[]
+// tag::end-class[]
 }
+// end::end-class[]

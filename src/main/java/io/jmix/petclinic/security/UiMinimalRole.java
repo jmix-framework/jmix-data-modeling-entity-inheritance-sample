@@ -15,7 +15,7 @@ public interface UiMinimalRole {
 
     String CODE = "ui-minimal";
 
-    @ViewPolicy(viewIds = "MainView")
+    @ViewPolicy(viewIds = {"MainView", "inputDialog"})
     void main();
 
     @ViewPolicy(viewIds = "LoginView")

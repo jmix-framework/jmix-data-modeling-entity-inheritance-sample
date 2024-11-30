@@ -1,0 +1,73 @@
+Table Payment {
+  id UUID [primary key]
+  amount decimal(19, 2) [not null]
+  payment_date datetime [not null]
+  invoice_id UUID [not null, ref: > Invoice.id]
+  version int [not null]
+  created_by varchar
+  created_date timestamp
+  last_modified_by varchar
+  last_modified_date timestamp
+  deleted_by varchar
+  deleted_date timestamp
+}
+
+Table CashPayment {
+    id UUID [pk]
+    amount Decimal(19, 2) [not null]
+    payment_date datetime [not null]
+    invoice_id UUID [not null, ref: > Invoice.id]
+    amount_tendered Decimal(19, 2) [not null]
+    change_given Decimal(19, 2)
+    version Integer [not null]
+    created_by String
+    created_date datetime
+    last_modified_by String
+    last_modified_date datetime
+    deleted_by String
+    deleted_date datetime
+}
+
+Table CreditCardPayment {
+    id UUID [pk]
+    amount Decimal(19, 2) [not null]
+    payment_date datetime [not null]
+    invoice_id UUID [not null, ref: > Invoice.id]
+    card_number String [not null]
+    card_holder_name String [not null]
+    version Integer [not null]
+    created_by String
+    created_date datetime
+    last_modified_by String
+    last_modified_date datetime
+    deleted_by String
+    deleted_date datetime
+}
+
+Table InsurancePayment {
+    id UUID [pk]
+    amount Decimal(19, 2) [not null]
+    payment_date datetime [not null]
+    invoice_id UUID [not null, ref: > Invoice.id]
+    policy_number String [not null]
+    insurance_provider_id UUID [not null, ref: > InsuranceProvider.id]
+    version Integer [not null]
+    created_by String
+    created_date datetime
+    last_modified_by String
+    last_modified_date datetime
+    deleted_by String
+    deleted_date datetime
+}
+
+Table Invoice {
+    id UUID [pk]
+    invoice_date datetime [not null]
+    total_amount Decimal(19, 2) [not null]
+}
+
+Table InsuranceProvider {
+    id UUID [pk]
+    name String [not null]
+    contact_information String
+}

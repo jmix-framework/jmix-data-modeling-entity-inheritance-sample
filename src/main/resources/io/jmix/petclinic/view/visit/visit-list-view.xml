@@ -5,17 +5,19 @@
       title="msg://visitListView.title"
       focusComponent="visitsDataGrid">
     <data>
+        <!--    tag::visit-list-loader[] -->
         <collection id="visitsDc"
-                    class="io.jmix.petclinic.entity.visit.Visit">
+                    class="io.jmix.petclinic.entity.visit.Visit"> <!--1-->
             <fetchPlan extends="_base">
                 <property name="pet" fetchPlan="_base"/>
             </fetchPlan>
             <loader id="visitsDl">
                 <query>
-                    <![CDATA[select e from petclinic_Visit e]]>
+                    <![CDATA[select e from petclinic_Visit e]]> <!--2-->
                 </query>
             </loader>
         </collection>
+        <!-- end::visit-list-loader[] -->
         <collection id="visitsCalendarDc"
                     class="io.jmix.petclinic.entity.visit.Visit">
             <fetchPlan extends="_base">
@@ -46,7 +48,7 @@
         <action id="calendarPrev" icon="ARROW_CIRCLE_LEFT" />
         <action id="calendarNext" icon="ARROW_CIRCLE_RIGHT" />
     </actions>
-    <layout>
+    <layout expand="contentTabSheet">
         <tabSheet id="contentTabSheet" width="100%" height="100%">
             <tab id="calendarTab" label="msg://calendar">
                 <vbox width="100%" height="100%" padding="false">
@@ -95,7 +97,7 @@
                 </vbox>
             </tab>
             <tab id="allVisitsTab" label="msg://allVisits">
-                <vbox width="100%" padding="false">
+                <vbox width="100%" height="100%" padding="false" expand="visitsDataGrid">
                     <genericFilter id="genericFilter"
                                    dataLoader="visitsDl">
                         <properties include=".*"/>
@@ -108,7 +110,7 @@
                     </hbox>
                     <dataGrid id="visitsDataGrid"
                               width="100%"
-                              minHeight="20em"
+                              height="100%"
                               dataContainer="visitsDc"
                               columnReorderingAllowed="true">
                         <actions>

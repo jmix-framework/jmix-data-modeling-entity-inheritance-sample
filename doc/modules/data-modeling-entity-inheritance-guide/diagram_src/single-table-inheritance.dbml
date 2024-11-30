@@ -1,0 +1,24 @@
+Table Visit {
+    id UUID [pk]
+    dtype String [not null]
+    pet_id UUID [not null, ref: > Pet.id]
+    type String [not null]
+    visit_start datetime
+    visit_end datetime
+    description String
+    treatment_status String
+
+    emergency_type String
+    life_threatening Boolean
+    notes String
+    scheduled_date date
+
+    next_appointment_date datetime
+}
+
+Table Pet {
+    id UUID [pk]
+    name String [not null]
+    identification_number String [not null]
+    birthdate date
+}

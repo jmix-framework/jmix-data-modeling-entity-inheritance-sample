@@ -1,4 +1,14 @@
+// tag::imports[]
 package io.jmix.petclinic.entity.visit;
+
+import jakarta.persistence.Table;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.DiscriminatorType;
+import jakarta.persistence.InheritanceType;
+// end::imports[]
 
 import io.jmix.core.annotation.DeletedBy;
 import io.jmix.core.annotation.DeletedDate;
@@ -10,7 +20,14 @@ import io.jmix.core.metamodel.annotation.JmixProperty;
 import io.jmix.petclinic.entity.NamedEntity;
 import io.jmix.petclinic.entity.User;
 import io.jmix.petclinic.entity.pet.Pet;
-import jakarta.persistence.*;
+
+import jakarta.persistence.Index;
+import jakarta.persistence.Column;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Version;
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -25,13 +42,20 @@ import java.util.UUID;
 import static io.jmix.petclinic.entity.visit.VisitTreatmentStatus.DONE;
 import static io.jmix.petclinic.entity.visit.VisitTreatmentStatus.IN_PROGRESS;
 
+// tag::start-class[]
+
+
 @JmixEntity
 @Table(name = "PETCLINIC_VISIT", indexes = {
         @Index(name = "IDX_PETCLINIC_VISIT_ASSIGNED_NURSE", columnList = "ASSIGNED_NURSE_ID"),
         @Index(name = "IDX_PETCLINIC_VISIT_PET", columnList = "PET_ID")
 })
 @Entity(name = "petclinic_Visit")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "DTYPE", discriminatorType = DiscriminatorType.STRING)
+@DiscriminatorValue("VISIT")
 public class Visit {
+
     @JmixGeneratedValue
     @Column(name = "ID", nullable = false)
     @Id
@@ -62,6 +86,8 @@ public class Visit {
 
     @Column(name = "TREATMENT_STATUS")
     private String treatmentStatus;
+
+    // end::start-class[]
 
     @Column(name = "VERSION", nullable = false)
     @Version
@@ -264,5 +290,6 @@ public class Visit {
     private boolean inTreatmentStatus(VisitTreatmentStatus visitTreatmentStatus) {
         return getTreatmentStatus().equals(visitTreatmentStatus);
     }
-
+// tag::end-class[]
 }
+// end::end-class[]

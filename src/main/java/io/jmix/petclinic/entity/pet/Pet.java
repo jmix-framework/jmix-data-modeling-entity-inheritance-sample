@@ -2,7 +2,6 @@ package io.jmix.petclinic.entity.pet;
 
 import io.jmix.core.metamodel.annotation.JmixEntity;
 import io.jmix.petclinic.entity.NamedEntity;
-import io.jmix.petclinic.entity.Person;
 import io.jmix.petclinic.entity.owner.Owner;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -12,6 +11,8 @@ import java.time.LocalDate;
 @JmixEntity
 @Table(name = "PETCLINIC_PET")
 @Entity(name = "petclinic_Pet")
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "DTYPE", discriminatorType = DiscriminatorType.STRING)
 public class Pet extends NamedEntity {
 
     @Column(name = "IDENTIFICATION_NUMBER", nullable = false)

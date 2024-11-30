@@ -1,5 +1,6 @@
 package io.jmix.petclinic.entity;
 
+// tag::start-class[]
 import io.jmix.core.annotation.DeletedBy;
 import io.jmix.core.annotation.DeletedDate;
 import io.jmix.core.entity.annotation.JmixGeneratedValue;
@@ -20,6 +21,7 @@ import java.util.UUID;
 @JmixEntity(name = "petclinic_NamedEntity")
 @MappedSuperclass
 public class NamedEntity {
+
     @JmixGeneratedValue
     @Column(name = "ID", nullable = false)
     @Id
@@ -56,6 +58,8 @@ public class NamedEntity {
     @DeletedDate
     @Column(name = "DELETED_DATE")
     private OffsetDateTime deletedDate;
+
+    // end::start-class[]
 
     public String getName() {
         return name;
@@ -128,4 +132,7 @@ public class NamedEntity {
     public void setId(UUID id) {
         this.id = id;
     }
+
+// tag::end-class[]
 }
+// end::end-class[]
