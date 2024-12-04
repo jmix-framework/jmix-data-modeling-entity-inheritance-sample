@@ -169,6 +169,7 @@ The subclasses mainly `extend Visit` indicating that it inherits all attributes 
 
 Let's look at the resulting entity-relationship diagram of the database:
 
+// suppress inspection "AsciiDocLinkResolve"
 image::single-table-inheritance.svg[alt="Entity Relationship Diagram for Single Table Inheritance", title="Single Table Inheritance ER Diagram", link="_images/single-table-inheritance.svg"]
 
 The `Visit` table consolidates all entities in the inheritance hierarchy. Common fields like `id`, `pet_id`, and `visit_start` are shared across all visit types. The `dtype` column identifies the specific subclass, while subclass-specific attributes like `emergency_type` and `next_appointment_date` are simply stored as additional columns in the same table.
@@ -182,7 +183,8 @@ Now, let’s look into how Single Table Inheritance works in the user interface.
 
 To create a new visit, we implemented a dialog specifically for this example, allowing users to select the appropriate subclass. The dialog presents options for visit types such as `RegularCheckup`, `EmergencyVisit`, and `FollowUpVisit`. Once a type is selected, the corresponding detail view for the chosen subclass is opened, displaying fields relevant to that type.
 
-image::input-dialog-new-visit.png[Type Selection Dialog for Visits]
+// suppress inspection "AsciiDocLinkResolve"
+image::input-dialog-new-visit.png[alt="Type Selection Dialog for Visits", title="Type Selection Dialog for Visits", link="_images/input-dialog-new-visit.png"]
 
 Here is how this is implemented in the controller when creating a new visit:
 
@@ -197,10 +199,12 @@ include::example$src/main/java/io/jmix/petclinic/view/visit/VisitListView.java[t
 
 Using the type selection dialog, the application dynamically determines the appropriate subclass for the new `Visit` entity. After the user confirms their selection, Jmix navigates to the corresponding detail view for the chosen subclass. This is because we pass in the correct type into the `detailView` method of the `ViewNavigators` bean. The detail views are simply standard Jmix detail views for each subclass.
 
+// suppress inspection "AsciiDocLinkResolve"
 image::regular-checkup-detail.png[alt="Regular Checkup Detail View with Relevant Fields", title="Regular Checkup Detail View", link="_images/regular-checkup-detail.png"]
 
 The `RegularCheckup` detail view includes the `Next Appointment Date` field, specific to this visit type. Common fields like `Description` and `Visit Start`, inherited from the `Visit` entity, are also displayed. When we look at the `EmergencyVisit` detail view, you can see the emergency-specific fields such as `Emergency Type` and a checkbox for `Life Threatening`:
 
+// suppress inspection "AsciiDocLinkResolve"
 image::emergency-visit-detail.png[alt="Emergency Visit Detail View with Emergency-Specific Fields", title="Emergency Visit Detail View", link="_images/emergency-visit-detail.png"]
 
 
@@ -216,13 +220,14 @@ include::example$src/main/resources/io/jmix/petclinic/view/visit/visit-list-view
 <1> The `collection` element defines a `CollectionContainer` for the base class `Visit`. This container serves as the binding point for the data grid in the UI and holds all visit entities, regardless of their specific subclass.
 <2> The `loader` element specifies a `CollectionDataLoader` that uses the JPQL query `SELECT e FROM petclinic_Visit e`. This query fetches all rows from the `Visit` table, leveraging the discriminator column (`dtype`) to ensure JPA loads the correct subclass for each entity.
 
+// suppress inspection "AsciiDocLinkResolve"
 image::visit-list-view.png[alt="Visit List View", title="Visit List View", link="_images/visit-list-view.png"]
 
 When the query is executed, JPQL fetches all data from the `Visit` table and relies on the discriminator column to map each row to its correct subclass. While the table displays only common columns shared across all visit types, the data loader transparently handles the polymorphic behavior, ensuring that each record is represented as its appropriate Java object.
 
 When we enable SQL logging, we can observe the SQL query executed by JPA. Below is the formatted SQL query that corresponds to what is executed:
 
-[source,sql]
+[source,sql,indent=0]
 ----
 SELECT LIMIT 0 50
     visit.ID,
@@ -260,13 +265,14 @@ To address this limitation, we introduce a dedicated `type` field alongside the 
 To ensure that the `type` field reflects the correct subclass, we assign its value using a `@PostConstruct` lifecycle callback in each subclass. For instance, the `RegularCheckup` class assigns the `type` field as follows:
 
 .RegularCheckup.java
-[source,java]
+[source,java,indent=0]
 ----
 include::example$src/main/java/io/jmix/petclinic/entity/visit/RegularCheckup.java[tags=start-class;init-visit-type;end-class]
 ----
 
 With this in place for each subclass, we can use the `type` field is as a column as well as for filtering:
 
+// suppress inspection "AsciiDocLinkResolve"
 image::visit-list-view-type-filter.png[alt="Visit List View with Type Filter", title="Visit List View with Type Filter", link="_images/visit-list-view-type-filter.png"]
 
 This wraps up our first entity inheritance approach: Single Table Inheritance. As we have seen, it provides a straightforward way to manage entity hierarchies in a single table. It allows polymorphic queries and avoids the need for multiple joins. However, there are limitations to this approach, particularly when subclass-specific fields have required fields, as we discussed earlier.
@@ -288,21 +294,21 @@ The `Pet` class represents the base entity with shared attributes like `identifi
 Joined Table Inheritance uses the `@DiscriminatorColumn` exacly how we have seen it before in the case of Single Table inheritance. The `@DiscriminatorValue` annotation in each subclass specifies the value used in the discriminator column to identify rows belonging to that entity type. Additionally, the subclasses have a `@PrimaryKeyJoinColumn` annotation that is required by JPA for performing the join operation.
 
 .Pet.java
-[source,java]
+[source,java,indent=0]
 ----
 include::example$src/main/java/io/jmix/petclinic/entity/pet/Pet.java[tags=start-class;end-class]
 ----
 The `Pet` class contains attributes such as `identificationNumber`, `birthdate`, and associations with the `Owner` and `PetType` entities.
 
 .Bird.java
-[source,java]
+[source,java,indent=0]
 ----
 include::example$src/main/java/io/jmix/petclinic/entity/pet/Bird.java[tags=class]
 ----
 The `Bird` class adds the `wingspan` field, which is specific to birds.
 
 .Cat.java
-[source,java]
+[source,java,indent=0]
 ----
 include::example$src/main/java/io/jmix/petclinic/entity/pet/Cat.java[tags=class]
 ----
@@ -315,6 +321,7 @@ In Joined Table Inheritance, the entity hierarchy is split into separate tables 
 
 For the `Pet` hierarchy, the following tables are created:
 
+// suppress inspection "AsciiDocLinkResolve"
 image::joined-table-inheritance.svg[alt="Joined Table Inheritance Data Model", title="Joined Table Inheritance Data Model", link="_images/joined-table-inheritance.svg"]
 
 [[joined-table-inheritance-dataaccess]]
@@ -324,7 +331,7 @@ When querying the base class (`Pet`), a Join is performed between the base table
 
 For example, if querying all pets via the Jmix DataManager API, the resulting SQL looks like this:
 
-[source,sql]
+[source,sql,indent=0]
 ----
 SELECT
     p.ID,
@@ -368,25 +375,27 @@ Now let’s look at how the `Pet` hierarchy is displayed in the Petclinic applic
 
 The data grid contains, shared fields like `Name`, `Identification Number`, and `Birthdate` are displayed.
 
+// suppress inspection "AsciiDocLinkResolve"
 image::owner-pets-list.png[alt="List of Pets for an Owner", title="List of Pets for an Owner", link="_images/owner-pets-list.png"]
 
 === Dropdown for Creating Pets
 
 Similar to the Visit example we need to determine which exact subclass should be used, when we create a Pet. This time we use a Dropdown Button for creating new pets in both the `Owner Detail View` and the `Pet List View`. Let's take a look how the button is implemented in the `Pet List View`.
 
+// suppress inspection "AsciiDocLinkResolve"
 image::pet-list-view-create-dropdown.png[alt="Pet List View with Dropdown Button", title="Pet List View with Dropdown Button", link="_images/pet-list-view-create-dropdown.png"]
 
 Below is the relevant portion of the `pet-list-view.xml`, where the `dropdownButton` and its actions are defined:
 
 .pet-list-view.xml
-[source,xml]
+[source,xml,indent=0]
 ----
 include::example$src/main/resources/io/jmix/petclinic/view/pet/pet/pet-list-view.xml[tags=pet-create-dropdown]
 ----
 The `dropdownButton` contains multiple `actionItem` elements, each linked to a specific pet type creation action. The actions are defined on the `dataGrid` and have custom implementations in the controller. Each action dynamically determines the correct detail view to open based on the selected pet type. Here is the relevant Java code from the Controller:
 
 .PetListView.java
-[source,java]
+[source,java,indent=0]
 ----
 include::example$src/main/java/io/jmix/petclinic/view/pet/pet/PetListView.java[tags=pet-create-actions]
 ----
@@ -397,6 +406,7 @@ By specifying the `viewClass` in the `ViewNavigators` call, we give Jmix the inf
 
 The screenshot above shows the detail view of a `Bird` entity. Similar to what we saw with Single Table Inheritance, this view displays both the attributes inherited from the base class (`Pet`) and subclass-specific fields.
 
+// suppress inspection "AsciiDocLinkResolve"
 image::bird-detail-view.png[alt="Bird Detail View", title="Bird Detail View", link="_images/bird-detail-view.png"]
 
 One difference is that we are now able to create `NOT NULL` subclass fields. The `wingspan` field is marked as required, as indicated by the `@NotNull` constraint on the `Bird` entity class.
@@ -441,8 +451,3 @@ This guide explored how JPA inheritance strategies can model complex domains whi
 Inheritance strategies are powerful tools for reducing redundancy and aligning the domain model with business requirements. However, their effectiveness depends on selecting the right approach for the specific use case. Single Table Inheritance offers efficiency but limits constraints, while Joined Table Inheritance ensures data integrity with more complex queries. We also touched on Table-Per-Class Inheritance, noting its rare practicality due to significant limitations in performance and compatibility with frameworks like EclipseLink.
 
 By understanding the trade-offs of each inheritance strategy, you can design maintainable, efficient domain models that align with their application’s needs. These techniques enable clear, flexible, and robust representations of hierarchical data, ensuring long-term scalability and maintainability for business applications.
-
-[[further-information]]
-=== Further Information
-
-* xref:data-access:entity-events.adoc[]
