@@ -52,7 +52,7 @@ To resolve this mismatch, mapping frameworks like JPA use a combination of techn
 JPA provides several strategies to handle these inheritance mappings. These strategies allow you to balance trade-offs between query performance, data integrity, and schema complexity.
 
 [[polymorphic-queries]]
-==== Polymorphic Queries
+=== Polymorphic Queries
 
 One solution of JPA to the impedance mismatch of inheritance is polymorphic queries. Let's look at what this is, as it is relevant later in this guide quite a bit.
 
@@ -86,12 +86,12 @@ The `NamedEntity` superclass is inherited by several entities, including `Pet`, 
 include::example$src/main/java/io/jmix/petclinic/entity/pet/PetType.java[]
 ----
 
+[[mapped-superclass-database-schema]]
+=== Database Schema
+
 Each subclass has its own dedicated database table, and the shared fields from `NamedEntity` are incorporated into these tables. Here is an image of the resulting entity-relationship diagram:
 
 image::mapped-superclass.svg[]
-
-[[mapped-superclass-dataaccess]]
-=== Data Access
 
 Because `NamedEntity` does not have a corresponding table in the database, it cannot be queried directly or by using a polymorphic query. For instance, the following query is **not valid**:
 
@@ -324,9 +324,6 @@ For the `Pet` hierarchy, the following tables are created:
 
 // suppress inspection "AsciiDocLinkResolve"
 image::joined-table-inheritance.svg[alt="Joined Table Inheritance Data Model", title="Joined Table Inheritance Data Model", link="_images/joined-table-inheritance.svg"]
-
-[[joined-table-inheritance-dataaccess]]
-=== Data Access
 
 When querying the base class (`Pet`), a Join is performed between the base table (`PETCLINIC_PET`) and all appropriate subclass tables (`PETCLINIC_BIRD`, `PETCLINIC_CAT`).
 
