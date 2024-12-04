@@ -38,17 +38,21 @@
             <tab id="petsTab" label="msg://io.jmix.petclinic.entity.owner/Owner.pets">
                 <vbox width="100%">
                     <hbox id="buttonsPanel" classNames="buttons-panel">
-                        <button action="petsDataGrid.create"/>
+                        <dropdownButton id="createBtn" icon="PLUS" text="msg://create" themeNames="icon">
+                            <items>
+                                <actionItem id="createPet" ref="petsDataGrid.createPet"/>
+                                <actionItem id="createCat" ref="petsDataGrid.createCat"/>
+                                <actionItem id="createBird" ref="petsDataGrid.createBird"/>
+                            </items>
+                        </dropdownButton>
                         <button action="petsDataGrid.edit"/>
                         <button action="petsDataGrid.remove"/>
                     </hbox>
                     <dataGrid id="petsDataGrid" dataContainer="petsDc" width="100%" minHeight="20em">
                         <actions>
-                            <action id="create" type="list_create">
-                                <properties>
-                                    <property name="openMode" value="DIALOG"/>
-                                </properties>
-                            </action>
+                            <action id="createPet" text="msg://pet"/>
+                            <action id="createCat" text="msg://createCat"/>
+                            <action id="createBird" text="msg://createBird"/>
                             <action id="edit" type="list_edit">
                                 <properties>
                                     <property name="openMode" value="DIALOG"/>

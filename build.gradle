@@ -55,7 +55,7 @@ dependencies {
     implementation 'io.jmix.gridexport:jmix-gridexport-flowui-starter'
 
     implementation 'org.apache.commons:commons-dbcp2'
-    implementation 'org.postgresql:postgresql'
+    implementation 'org.hsqldb:hsqldb'
 }
 
 configurations.implementation {

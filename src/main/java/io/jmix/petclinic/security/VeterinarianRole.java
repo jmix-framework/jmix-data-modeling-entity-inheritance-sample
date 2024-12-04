@@ -2,7 +2,6 @@ package io.jmix.petclinic.security;
 
 import io.jmix.petclinic.entity.User;
 import io.jmix.petclinic.entity.owner.Owner;
-import io.jmix.petclinic.entity.payment.*;
 import io.jmix.petclinic.entity.pet.Bird;
 import io.jmix.petclinic.entity.pet.Cat;
 import io.jmix.petclinic.entity.pet.Pet;
@@ -51,13 +50,9 @@ public interface VeterinarianRole {
     @EntityPolicy(entityClass = Veterinarian.class, actions = EntityPolicyAction.ALL)
     void veterinarian();
 
-    @MenuPolicy(menuIds = {"petclinic_Pet.list", "petclinic_Owner.list", "petclinic_Visit.list", "petclinic_Specialty.list", "petclinic_Veterinarian.list", "petclinic_PetType.list", "petclinic_Payment.list"})
-    @ViewPolicy(viewIds = {"petclinic_Visit.list", "petclinic_Pet.list", "petclinic_Owner.list", "petclinic_Veterinarian.list", "petclinic_Specialty.list", "petclinic_PetType.list", "petclinic_Visit.detail", "petclinic_Veterinarian.detail", "petclinic_Pet.detail", "petclinic_Owner.detail", "petclinic_Cat.detail", "petclinic_Bird.detail", "petclinic_EmergencyVisit.detail", "petclinic_FollowUpVisit.detail", "petclinic_RegularCheckup.detail", "petclinic_Payment.list", "petclinic_Payment.detail"})
+    @MenuPolicy(menuIds = {"petclinic_Pet.list", "petclinic_Owner.list", "petclinic_Visit.list", "petclinic_Specialty.list", "petclinic_Veterinarian.list", "petclinic_PetType.list"})
+    @ViewPolicy(viewIds = {"petclinic_Visit.list", "petclinic_Pet.list", "petclinic_Owner.list", "petclinic_Veterinarian.list", "petclinic_Specialty.list", "petclinic_PetType.list", "petclinic_Visit.detail", "petclinic_Veterinarian.detail", "petclinic_Pet.detail", "petclinic_Owner.detail", "petclinic_Cat.detail", "petclinic_Bird.detail", "petclinic_EmergencyVisit.detail", "petclinic_FollowUpVisit.detail", "petclinic_RegularCheckup.detail"})
     void screens();
-
-    @EntityAttributePolicy(entityClass = CashPayment.class, attributes = "*", action = EntityAttributePolicyAction.MODIFY)
-    @EntityPolicy(entityClass = CashPayment.class, actions = EntityPolicyAction.ALL)
-    void cashPayment();
 
     @EntityAttributePolicy(entityClass = Cat.class, attributes = "*", action = EntityAttributePolicyAction.MODIFY)
     @EntityPolicy(entityClass = Cat.class, actions = EntityPolicyAction.ALL)
@@ -71,31 +66,13 @@ public interface VeterinarianRole {
     @EntityPolicy(entityClass = EmergencyVisit.class, actions = EntityPolicyAction.ALL)
     void emergencyVisit();
 
-    @EntityAttributePolicy(entityClass = CreditCardPayment.class, attributes = "*", action = EntityAttributePolicyAction.MODIFY)
-    @EntityPolicy(entityClass = CreditCardPayment.class, actions = EntityPolicyAction.ALL)
-    void creditCardPayment();
-
     @EntityAttributePolicy(entityClass = FollowUpVisit.class, attributes = "*", action = EntityAttributePolicyAction.MODIFY)
     @EntityPolicy(entityClass = FollowUpVisit.class, actions = EntityPolicyAction.ALL)
     void followUpVisit();
 
-    @EntityAttributePolicy(entityClass = InsuranceProvider.class, attributes = "*", action = EntityAttributePolicyAction.MODIFY)
-    @EntityPolicy(entityClass = InsuranceProvider.class, actions = EntityPolicyAction.ALL)
-    void insuranceProvider();
-
-    @EntityAttributePolicy(entityClass = InsurancePayment.class, attributes = "*", action = EntityAttributePolicyAction.MODIFY)
-    @EntityPolicy(entityClass = InsurancePayment.class, actions = EntityPolicyAction.ALL)
-    void insurancePayment();
-
-    @EntityAttributePolicy(entityClass = Invoice.class, attributes = "*", action = EntityAttributePolicyAction.MODIFY)
-    @EntityPolicy(entityClass = Invoice.class, actions = EntityPolicyAction.ALL)
-    void invoice();
 
     @EntityAttributePolicy(entityClass = RegularCheckup.class, attributes = "*", action = EntityAttributePolicyAction.MODIFY)
     @EntityPolicy(entityClass = RegularCheckup.class, actions = EntityPolicyAction.ALL)
     void regularCheckup();
 
-    @EntityAttributePolicy(entityClass = Payment.class, attributes = "*", action = EntityAttributePolicyAction.MODIFY)
-    @EntityPolicy(entityClass = Payment.class, actions = EntityPolicyAction.ALL)
-    void payment();
 }

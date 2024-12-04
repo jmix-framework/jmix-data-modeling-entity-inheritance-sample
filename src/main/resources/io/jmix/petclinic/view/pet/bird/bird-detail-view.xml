@@ -11,6 +11,15 @@
             </fetchPlan>
             <loader id="birdDl"/>
         </instance>
+        <collection id="allPetTypesDc"
+                    class="io.jmix.petclinic.entity.pet.PetType">
+            <fetchPlan extends="_base"/>
+            <loader id="allPetTypesDl">
+                <query>
+                    <![CDATA[select e from petclinic_PetType e]]>
+                </query>
+            </loader>
+        </collection>
     </data>
     <facets>
         <dataLoadCoordinator auto="true"/>
@@ -28,12 +37,12 @@
             <textField id="nameField" property="name"/>
             <textField id="identificationNumberField" property="identificationNumber"/>
             <datePicker id="birthdateField" property="birthdate"/>
-            <entityPicker id="typeField" property="type">
+            <entityComboBox id="typeField" property="type" itemsContainer="allPetTypesDc">
                 <actions>
                     <action id="entityLookup" type="entity_lookup"/>
                     <action id="entityClear" type="entity_clear"/>
                 </actions>
-            </entityPicker>
+            </entityComboBox>
             <entityPicker id="ownerField" property="owner">
                 <actions>
                     <action id="entityLookup" type="entity_lookup"/>

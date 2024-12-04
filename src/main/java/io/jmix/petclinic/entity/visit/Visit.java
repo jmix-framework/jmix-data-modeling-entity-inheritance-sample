@@ -1,6 +1,7 @@
 // tag::imports[]
 package io.jmix.petclinic.entity.visit;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.persistence.Table;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
@@ -49,10 +50,10 @@ import static io.jmix.petclinic.entity.visit.VisitTreatmentStatus.IN_PROGRESS;
 @Table(name = "PETCLINIC_VISIT", indexes = {
         @Index(name = "IDX_PETCLINIC_VISIT_ASSIGNED_NURSE", columnList = "ASSIGNED_NURSE_ID"),
         @Index(name = "IDX_PETCLINIC_VISIT_PET", columnList = "PET_ID")
-})
+}) // <1>
 @Entity(name = "petclinic_Visit")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "DTYPE", discriminatorType = DiscriminatorType.STRING)
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)  // <2>
+@DiscriminatorColumn(name = "DTYPE", discriminatorType = DiscriminatorType.STRING)  // <3>
 @DiscriminatorValue("VISIT")
 public class Visit {
 
@@ -290,6 +291,12 @@ public class Visit {
     private boolean inTreatmentStatus(VisitTreatmentStatus visitTreatmentStatus) {
         return getTreatmentStatus().equals(visitTreatmentStatus);
     }
+
+    @PostConstruct
+    public void initVisitType() {
+        setType(VisitType.OTHER);
+    }
+
 // tag::end-class[]
 }
 // end::end-class[]

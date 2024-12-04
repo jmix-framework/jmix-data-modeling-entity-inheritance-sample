@@ -1,6 +1,7 @@
 package io.jmix.petclinic.entity.visit;
 
 import io.jmix.core.metamodel.annotation.JmixEntity;
+import jakarta.annotation.PostConstruct;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -29,5 +30,10 @@ public class EmergencyVisit extends Visit {
 
     public void setEmergencyType(EmergencyType emergencyType) {
         this.emergencyType = emergencyType == null ? null : emergencyType.getId();
+    }
+
+    @PostConstruct
+    public void initVisitType() {
+        setType(VisitType.EMERGENCY_VISIT);
     }
 }

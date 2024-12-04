@@ -7,6 +7,7 @@ import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
+// tag::class[]
 @JmixEntity
 @Table(name = "PETCLINIC_CAT")
 @Entity(name = "petclinic_Cat")
@@ -35,3 +36,4 @@ public class Cat extends Pet {
         this.clawLength = clawLength;
     }
 }
+// end::class[]

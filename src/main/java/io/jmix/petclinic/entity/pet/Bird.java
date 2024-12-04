@@ -7,6 +7,7 @@ import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
+// tag::class[]
 @JmixEntity
 @Table(name = "PETCLINIC_BIRD")
 @Entity(name = "petclinic_Bird")
@@ -24,3 +25,4 @@ public class Bird extends Pet {
         this.wingspan = wingspan;
     }
 }
+// end::class[]

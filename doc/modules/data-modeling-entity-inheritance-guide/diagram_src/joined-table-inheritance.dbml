@@ -1,0 +1,18 @@
+Table PETCLINIC_PET {
+    ID UUID [pk]
+    IDENTIFICATION_NUMBER String [not null]
+    BIRTHDATE Date
+    NAME String [not null]
+    DTYPE String [not null]
+}
+
+Table PETCLINIC_BIRD {
+    ID UUID [pk, ref: > PETCLINIC_PET.ID]
+    WINGSPAN Float [not null]
+}
+
+Table PETCLINIC_CAT {
+    ID UUID [pk, ref: > PETCLINIC_PET.ID]
+    CLAW_LENGTH Int
+    LITTER_BOX_TRAINED Boolean [not null]
+}

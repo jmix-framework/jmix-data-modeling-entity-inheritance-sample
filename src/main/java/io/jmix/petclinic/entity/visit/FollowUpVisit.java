@@ -1,6 +1,7 @@
 package io.jmix.petclinic.entity.visit;
 
 import io.jmix.core.metamodel.annotation.JmixEntity;
+import jakarta.annotation.PostConstruct;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -33,5 +34,10 @@ public class FollowUpVisit extends Visit {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    @PostConstruct
+    public void initVisitType() {
+        setType(VisitType.FOLLOW_UP_VISIT);
     }
 }

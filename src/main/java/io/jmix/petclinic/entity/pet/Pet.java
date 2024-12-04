@@ -3,8 +3,20 @@ package io.jmix.petclinic.entity.pet;
 import io.jmix.core.metamodel.annotation.JmixEntity;
 import io.jmix.petclinic.entity.NamedEntity;
 import io.jmix.petclinic.entity.owner.Owner;
-import jakarta.persistence.*;
+
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
+import jakarta.persistence.Column;
+
+// tag::start-class[]
+import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.DiscriminatorType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.Table;
 
 import java.time.LocalDate;
 
@@ -29,6 +41,8 @@ public class Pet extends NamedEntity {
     @JoinColumn(name = "OWNER_ID")
     @ManyToOne(fetch = FetchType.LAZY)
     private Owner owner;
+
+    // end::start-class[]
 
     public LocalDate getBirthdate() {
         return birthdate;
@@ -61,4 +75,6 @@ public class Pet extends NamedEntity {
     public void setIdentificationNumber(String identificationNumber) {
         this.identificationNumber = identificationNumber;
     }
+// tag::end-class[]
 }
+// end::end-class[]

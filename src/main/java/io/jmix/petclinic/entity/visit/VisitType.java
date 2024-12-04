@@ -8,9 +8,8 @@ import javax.annotation.Nullable;
 public enum VisitType implements EnumClass<String> {
 
     REGULAR_CHECKUP("REGULAR_CHECKUP", "event-blue", "BLUE", "#BAF7FF", "#249FAF", "#000000"),
-    RECHARGE("RECHARGE", "event-green", "GREEN", "#BAF2D8", "#23BA75", "#000000"),
-    STATUS_CONDITION_HEALING("STATUS_CONDITION_HEALING", "event-yellow", "YELLOW", "#FFE2AD", "#E3A023", "#000000"),
-    DISEASE_TREATMENT("DISEASE_TREATMENT", "event-red", "RED", "#FFC8D0", "#DF6679", "#000000"),
+    EMERGENCY_VISIT("EMERGENCY_VISIT", "event-green", "GREEN", "#BAF2D8", "#23BA75", "#000000"),
+    FOLLOW_UP_VISIT("FOLLOW_UP_VISIT", "event-yellow", "YELLOW", "#FFE2AD", "#E3A023", "#000000"),
     OTHER("OTHER", "event-purple", "PURPLE", "#D6D0FF", "#6E64B9", "#000000");
 
     private final String id;

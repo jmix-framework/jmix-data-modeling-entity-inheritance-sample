@@ -39,6 +39,7 @@ public class PetListView extends StandardListView<Pet> {
         ownerFilter.clear();
     }
 
+    // tag::pet-create-actions[]
     @Subscribe("petsDataGrid.createPet")
     public void onPetsDataGridCreatePet(final ActionPerformedEvent event) {
         viewNavigators.detailView(petsDataGrid)
@@ -62,4 +63,5 @@ public class PetListView extends StandardListView<Pet> {
                 .newEntity()
                 .navigate();
     }
+    // end::pet-create-actions[]
 }
