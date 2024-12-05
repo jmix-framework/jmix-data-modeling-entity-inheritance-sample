@@ -2,9 +2,9 @@
 
 = Data Modeling: Entity Inheritance
 
-Entity inheritance is a key approach for structuring domain models with shared attributes and specialized behavior. In the Pet Clinic application, for example, pets share common fields like name and birthdate, but specific types such as cats or birds have unique properties. Similarly, visits to the clinic can vary in type, requiring distinct data fields.
+Entity inheritance is a key approach for structuring domain models with shared attributes and specialized behavior. In the Petclinic application, for example, pets share common fields like name and birthdate, but specific types such as cats or birds have unique properties. Similarly, visits to the clinic can vary in type, requiring distinct data fields.
 
-This guide explores JPA inheritance strategies and demonstrates their application in a Jmix project. Practical examples from the Pet Clinic domain model will illustrate how to choose the right strategy for different scenarios.
+This guide explores how we can model those specialities using JPA inheritance strategies. Practical examples from the Petclinic domain model will illustrate how to choose the right strategy for different scenarios.
 
 [[requirements]]
 == Requirements
@@ -25,52 +25,62 @@ Alternatively, you can **start with the base Petclinic project** and follow the 
 This guide enhances the https://github.com/Jmix-framework/Jmix-petclinic-2[Jmix Petclinic^] example by implementing various JPA inheritance strategies:
 
 * **Mapped Superclass (NamedEntity):** We will look into the base class `NamedEntity` that centralizes common fields like `id`, `name`, and auditing attributes. Entities such as `Owner`, `PetType`, and `Specialty` inherit these fields.
-
-* **Joined Table Inheritance (Pet Hierarchy):** The `Pet` base class includes subclasses like `Cat` and `Bird`. Subclass-specific attributes are stored in their own tables, while polymorphic queries allow listing all pets.
-
 * **Single Table Inheritance (Visit Hierarchy):** The `Visit` base class encompasses subclasses like `RegularCheckup`, `EmergencyVisit`, and `FollowUp`. All visits are stored in a single table, enabling efficient polymorphic queries and simplifying associations.
+* **Joined Table Inheritance (Pet Hierarchy):** The `Pet` base class includes subclasses like `Cat` and `Bird`. Subclass-specific attributes are stored in their own tables, while polymorphic queries allow listing all pets.
 
 These scenarios highlight the strengths and trade-offs of each inheritance strategy within the Petclinic domain.
 
 [[introduction]]
 == Introduction
 
-Business applications often deal with complex domains that require clear and maintainable representations of shared and specialized data. Entity inheritance allows us to model things that are very similar, but a different. It provides a way to define common attributes and behavior in a base class while letting subclasses add their own specifics. This not only avoids redundancy but also aligns closely with how you as a develoepr think about your domain.
+Business applications often deal with complex domains that require clear and maintainable representations of shared and specialized data. Entity inheritance allows us to model things that are very similar, but different in certain ways. It provides a way to define common attributes and behavior in a base class while letting subclasses add their own specifics. This not only avoids redundancy but also aligns closely with how you as a developer think about your domain.
 
 In the Petclinic application, we could use entity inheritance to structure the domain model based on real use-cases like:
 
-* **Pets:** All pets share attributes such as `name` and `birthDate`, but specific types, such as cats and birds, introduce unique fields like `litterBoxTrained` or `wingspan`. Inheritance allows these specialized attributes to coexist with common ones, enabling operations like listing all pets or filtering by type.
+* **Pets:** All pets share attributes such as `name` and `birthDate`, but specific types, such as cats and birds, introduce unique fields like `litterBoxTrained` or `wingspan`. Inheritance allows these specialized attributes to coexist with common ones.
 * **Visits:** Different types of visits, such as `RegularCheckup` or `EmergencyVisit`, require additional fields specific to their type. At the same time, all visits share common properties like `visitStart` and `treatmentStatus`, which can be handled in the base class.
 
 [[impedance-mismatch]]
 === Impedance Mismatch
 
-Object-oriented programming languages like Java naturally support inheritance, allowing you to create hierarchies with shared attributes and specialized behavior. Polymorphism and method overriding make these hierarchies intuitive to design and maintain. In contrast, relational databases are built around flat, tabular structures, where data is stored in rows and columns without inherent support for hierarchical relationships. This fundamental difference is known as the "impedance mismatch" between object models and relational databases.
+Object-oriented programming languages like Java naturally support inheritance, allowing you to create hierarchies with shared attributes and specialized behavior. Polymorphism and method overriding make these hierarchies intuitive to design and maintain. In contrast, relational databases are built around flat, tabular structures, where data is stored in rows and columns without inherent support for hierarchical relationships. This fundamental difference is part of the broader "impedance mismatch" between object models and relational databases.
 
-To resolve this mismatch, mapping frameworks like JPA use a combination of techniques to bridge the gap. One common approach is to utilize multiple tables to represent an inheritance hierarchy. For example, a base entity might be stored in a separate table, while subclasses have their own tables containing specific attributes. When retrieving data, an SQL `SELECT` statement is used to join these tables, combining the base and subclass data into a single result set that can be mapped back to the object model. Additionally, metadata such as a discriminator column is often stored in the database. This metadata indicates the specific type of each entity, ensuring that data is accurately converted back into the correct Java object when loaded.
+In addition to challenges with inheritance, the impedance mismatch includes difficulties in handling associations, identity, and data types. For example, object references in Java must be mapped to foreign keys in a database, object identity differs from database key constraints, and some data types, like enums or complex objects, require special handling to be stored relationally.
 
-JPA provides several strategies to handle these inheritance mappings. These strategies allow you to balance trade-offs between query performance, data integrity, and schema complexity.
+Inheritance is one of the significant aspects of this mismatch. To resolve it, mapping frameworks like JPA use a combination of techniques to bridge the gap. One common approach is to utilize multiple tables to represent an inheritance hierarchy. For example, a base entity might be stored in a separate table, while subclasses have their own tables containing specific attributes. When retrieving data, an SQL `JOIN` statement is used to combine data from the base and subclass data into a single result set that can be mapped back to the object model.
+
+[[discriminator-column]]
+=== Discriminator Column
+
+When working with inheritance in relational databases, it becomes crucial to store the type information for each entity instance. This type information ensures that when data is retrieved from the database, it can be accurately mapped back into the appropriate subclass in the object model. To achieve this, a **discriminator column** is often used. This column stores a value that identifies the specific type of each row in the database.
+
+The discriminator column is a key mechanism to handle polymorphism in relational databases, as it enables mapping frameworks to differentiate between subclasses.
+
+Later in this guide, we will explore how JPA uses discriminator columns as part of its inheritance strategies.
 
 [[polymorphic-queries]]
 === Polymorphic Queries
 
-One solution of JPA to the impedance mismatch of inheritance is polymorphic queries. Let's look at what this is, as it is relevant later in this guide quite a bit.
+One solution JPA provides to the impedance mismatch of inheritance is polymorphic queries. This feature allows you to query a base class and transparently retrieve instances of all its subclasses.
 
-Polymorphic queries is a JPQL feature, that allows you to query a base class and transparently retrieve instances of all its subclasses. For example, a query on the `Visit` base class like `SELECT e from petclinic_Visit e` can fetch both `RegularCheckup` and `EmergencyVisit` entities without needing separate queries for each subclass.
+[source,jpaql,indent=0]
+----
+SELECT e FROM petclinic_Visit e
+----
 
-This feature simplifies working with inheritance hierarchies. The "heavy lifting" on how this needs to be expressed on the database level is hidden by JPA. Depending on the chosen inheritance strategy, the underlying SQL query generated by JPQL differs, as the data may be spread across one or more tables in the database.
+This query can fetch both `RegularCheckup` and `EmergencyVisit` entities without needing separate queries for each subclass.
 
-In this guide, we will explore how these strategies can be applied within the Petclinic domain to address real-world modeling challenges. Starting with Single Table Inheritance, we will work through examples that illustrate the strengths and appropriate use cases for each strategy.
+This feature simplifies working with inheritance hierarchies. The "heavy lifting" required to express this on the database level—such as `JOIN` or `UNION` operations depending on the inheritance strategy—is hidden by JPA. In this guide, we will explore how these strategies impact polymorphic queries and demonstrate their usage in the Petclinic application.
 
 [[mapped-superclass]]
 == Mapped Superclass
 
-The `@MappedSuperclass` is the first option to define shared attributes and behavior in a base class without creating a corresponding database table for the superclass. This approach is ideal for scenarios where entities share common fields, but there is no need for polymorphic querying or explicit relationships between those entities in the database. Strictly speaking it does not an official "inheritance strategy" (we will see later why), but still of it is quite often used to introduce a hierarchy in the Java domain model.
+The `@MappedSuperclass` is the first option to define shared attributes and behavior in a base class without creating a corresponding database table for the superclass. This approach helps for scenarios where entities share common fields, but there is no need for polymorphic querying or explicit relationships between those entities in the database. Strictly speaking it does not an official "inheritance strategy", but still of it is quite often used to introduce a hierarchy in the Java domain model.
 
 [[mapped-superclass-datamodel]]
 === Data Model
 
-In the Petclinic application, the `NamedEntity` class illustrates this concept. It defines common system attributes such as `id`, `version`, auditing fields (`createdBy`, `createdDate`, etc.), and a `name` field, which is annotated with `@InstanceName`. This enables the `name` field to serve as the default display name for the entity in the Jmix UI. Subclasses of `NamedEntity` inherit these attributes, which keeps your entities source code cleaner.
+In the Petclinic application, the `NamedEntity` class illustrates this concept. It defines common system attributes such as `id`, `version`, auditing fields (`createdBy`, `createdDate`, etc.), and a `name` field Subclasses of `NamedEntity` inherit these attributes, which keeps your entities source code cleaner.
 
 .NamedEntity.java
 [source,java,indent=0]
@@ -85,6 +95,11 @@ The `NamedEntity` superclass is inherited by several entities, including `Pet`, 
 ----
 include::example$src/main/java/io/jmix/petclinic/entity/pet/PetType.java[]
 ----
+
+[TIP]
+====
+In addition to inheriting shared fields, the `NamedEntity` class can also centralize shared Java behavior. For instance, the `@InstanceName` annotation on the `name` field defines a consistent display name across all subclasses, such as `Pet` and `Specialty`, in the Jmix UI. This eliminates redundant annotations and ensures uniform behavior throughout the domain model.
+====
 
 [[mapped-superclass-database-schema]]
 === Database Schema
@@ -120,7 +135,7 @@ These queries operate on the subclass tables but utilize the shared fields defin
 
 Single Table Inheritance is a strategy where all entities in an inheritance hierarchy are stored in a single database table. When a subclass has a new attribute, it is added as an additional column in the table. This way, the table holds a superset of the attributes of all subclasses as well as the attributes of the superclass itself.
 
-But how does JPA determine which subclass a row in the table belongs to? The answer lies in the discriminator column. This is a special column that enables JPA to correctly map database rows back to their corresponding Java objects by storing a value that identifies the specific subclass. When JPA reads a row from the `VISIT` table, it inspects the value in the `DTYPE` column to determine the appropriate subclass. Based on this value, JPA instantiates the correct Java object (e.g., `RegularCheckup` or `EmergencyVisit`) and populates its attributes with the corresponding column values from the row.
+As we discussed earlier in the <<discriminator-column>> section, JPA provides a mechanism called the discriminator column to determine the specific subclass for each row in the table. In the case of Single Table Inheritance, this mechanism comes into play. The `DTYPE` column stores a value that identifies the subclass. When JPA reads a row from the `VISIT` table, it inspects the value in the `DTYPE` column to instantiate the correct Java object (e.g., `RegularCheckup` or `EmergencyVisit`) and populate its attributes with the corresponding column values.
 
 This approach offers simplicity in querying and efficient read operations, as all data resides in one table. However, it comes with the trade-off of potentially large tables with many nullable columns for subclass-specific fields.
 
@@ -133,7 +148,7 @@ One important limitation of Single Table Inheritance is that it does not allow d
 This limitation means that enforcing data integrity on subclass-specific fields at the database level is not possible. However, you can still ensure data integrity at the application level using Bean Validation in Jmix. You can use `@NotNull` on fields in the domain model to validate data before it is persisted to the database.
 ====
 
-Let's look at our example use-case for Single Table Inheritance: modeling visits. Visits can have different types like `RegularCheckup` and `EmergencyVisit`. Common attributes are stored in the base class, while subclass-specific attributes are nullable fields in the same table.
+Let's look at our example use-case for Single Table Inheritance: modeling visits. Visits can have different types like `RegularCheckup` and `EmergencyVisit`. And that’s what we’re going to explore next.
 
 [[single-table-inheritance-datamodel]]
 === Data Model
@@ -180,6 +195,7 @@ The `Visit` table consolidates all entities in the inheritance hierarchy. Common
 
 Now, let’s look into how Single Table Inheritance works in the user interface. With Jmix, we can create standard views to handle entities and their subclasses. In this section, we will explore how different visit types (`RegularCheckup`, `EmergencyVisit`, and `FollowUpVisit`) can be managed, from creating new visits to displaying them in polymorphic lists.
 
+[[single-table-inheritance-ui-detail-view]]
 ==== Determining the Visit Type Detail View
 
 To create a new visit, we implemented a dialog specifically for this example, allowing users to select the appropriate subclass. The dialog presents options for visit types such as `RegularCheckup`, `EmergencyVisit`, and `FollowUpVisit`. Once a type is selected, the corresponding detail view for the chosen subclass is opened, displaying fields relevant to that type.
@@ -209,6 +225,7 @@ The `RegularCheckup` detail view includes the `Next Appointment Date` field, spe
 image::emergency-visit-detail.png[alt="Emergency Visit Detail View with Emergency-Specific Fields", title="Emergency Visit Detail View", link="_images/emergency-visit-detail.png"]
 
 
+[[single-table-inheritance-ui-list-view]]
 ==== Polymorphic Query in Visit List View
 
 Let's focus on how we display visits of all subtypes. As we learned before, all types of visits (`RegularCheckup`, `EmergencyVisit`, `FollowUpVisit`) are stored in a single table. In the view descriptor, we load the data as we would for any regular JPA entity. Below is an excerpt of the XML configuration for the `VisitListView`:
@@ -376,6 +393,7 @@ The data grid contains, shared fields like `Name`, `Identification Number`, and 
 // suppress inspection "AsciiDocLinkResolve"
 image::owner-pets-list.png[alt="List of Pets for an Owner", title="List of Pets for an Owner", link="_images/owner-pets-list.png"]
 
+[[joined-table-inheritance-ui-dropdown-for-creating-pets]]
 ==== Dropdown for Creating Pets
 
 Similar to the Visit example we need to determine which exact subclass should be used, when we create a Pet. This time we use a Dropdown Button for creating new pets in both the `Owner Detail View` and the `Pet List View`. Let's take a look how the button is implemented in the `Pet List View`.
@@ -400,6 +418,7 @@ include::example$src/main/java/io/jmix/petclinic/view/pet/pet/PetListView.java[t
 
 By specifying the `viewClass` in the `ViewNavigators` call, we give Jmix the information which concrete subclass of Pet that is supposed to be instantiated.
 
+[[joined-table-inheritance-ui-detail-view]]
 ==== Subclass-Specific Detail View
 
 The screenshot above shows the detail view of a `Bird` entity. Similar to what we saw with Single Table Inheritance, this view displays both the attributes inherited from the base class (`Pet`) and subclass-specific fields.
