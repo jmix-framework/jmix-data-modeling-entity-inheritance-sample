@@ -241,7 +241,7 @@ include::example$src/main/resources/io/jmix/petclinic/view/visit/visit-list-view
 // suppress inspection "AsciiDocLinkResolve"
 image::visit-list-view.png[alt="Visit List View", title="Visit List View", link="_images/visit-list-view.png"]
 
-When the query is executed, JPQL fetches all data from the `Visit` table and relies on the discriminator column to map each row to its correct subclass. While the table displays only common columns shared across all visit types, the data loader transparently handles the polymorphic behavior, ensuring that each record is represented as its appropriate Java object.
+When the query is executed, JPA fetches all data from the `Visit` table and loads visits of all types. While the table displays only common columns shared across all visit types, the data loader transparently handles the polymorphic behavior, ensuring that each record is represented as its appropriate Java object.
 
 When we enable SQL logging, we can observe the SQL query executed by JPA. Below is the formatted SQL query that corresponds to what is executed:
 
@@ -273,8 +273,8 @@ ORDER BY
     visit.ID ASC
 ----
 
-[[visualize-entity-type-in-ui]]
-==== Visualize Entity Type in UI
+[[visualize-subclass-type-in-ui]]
+==== Visualize Subclass type in UI
 
 When integrating entity hierarchies into the UI, the challenge arises of how to display and work with entity types. At first glance, you might consider leveraging the discriminator column (`DType`) used in the database. However, this column is not a true entity attribute. It lacks getters and setters, cannot be localized or translated, and is generally not intended for direct use in application logic. Additionally, it cannot be used in Jmix UI components such as the Generic Filter for searching, sorting, or filtering.
 
@@ -293,7 +293,7 @@ With this in place for each subclass, we can use the `type` field is as a column
 // suppress inspection "AsciiDocLinkResolve"
 image::visit-list-view-type-filter.png[alt="Visit List View with Type Filter", title="Visit List View with Type Filter", link="_images/visit-list-view-type-filter.png"]
 
-This wraps up our first entity inheritance approach: Single Table Inheritance. As we have seen, it provides a straightforward way to manage entity hierarchies in a single table. It allows polymorphic queries and avoids the need for multiple joins. However, there are limitations to this approach, particularly when subclass-specific fields have required fields, as we discussed earlier.
+This wraps up our first entity inheritance approach: Single Table Inheritance. As we have seen, it provides a straightforward way to manage entity hierarchies in a single table. It allows polymorphic queries and avoids the need for multiple joins. However, there are limitations to this approach, particularly when subclass-specific fields are supposed to be required, as we discussed earlier.
 
 To overcome this limitation, we can use the Joined inheritance strategy, which we will cover in the next section.
 
@@ -309,7 +309,7 @@ For this guide, we picked the `Pet` entity as an example for the joined table in
 
 The `Pet` class represents the base entity with shared attributes like `identificationNumber` and `birthdate`, while the subclasses `Bird` and `Cat` define specific fields.
 
-Joined Table Inheritance uses the `@DiscriminatorColumn` exacly how we have seen it before in the case of Single Table inheritance. The `@DiscriminatorValue` annotation in each subclass specifies the value used in the discriminator column to identify rows belonging to that entity type. Additionally, the subclasses have a `@PrimaryKeyJoinColumn` annotation that is required by JPA for performing the join operation.
+Joined Table Inheritance uses the `@DiscriminatorColumn` exacly how we have seen it before in the case of Single Table inheritance. The `@DiscriminatorValue` annotation in each subclass specifies the value used in the discriminator column to identify rows belonging to that entity type. Additionally, the subclasses have a `@PrimaryKeyJoinColumn` annotation that is required by JPA for performing the `JOIN` operation.
 
 .Pet.java
 [source,java,indent=0]
@@ -362,7 +362,9 @@ LEFT JOIN PETCLINIC_BIRD b ON p.ID = b.ID
 LEFT JOIN PETCLINIC_CAT c ON p.ID = c.ID;
 ----
 
-The `@PrimaryKeyJoinColumn` annotation we already mentioned above establishes the relationship between the subclass tables and the base class table. This setup uses the primary key of the base class (`ID`) as the foreign key in the subclass tables. When executing queries involving joined inheritance, `LEFT JOIN` operations are performed between the base class table (`PETCLINIC_PET`) and each of the subclass tables (`PETCLINIC_BIRD`, `PETCLINIC_CAT`), ensuring all necessary data is combined for accurate representation of the inheritance hierarchy. The use of `LEFT JOIN` is necessary because a record in the base class table (`PETCLINIC_PET`) corresponds to data in at most one of the subclass tables (`PETCLINIC_BIRD`, `PETCLINIC_CAT`) or none at all. This means that for a given base class record, there will typically be no data in the other subclass tables. A `LEFT JOIN` ensures that the query result includes the base class record even when no matching data is found in the subclass tables, preserving the integrity of the polymorphic query.
+The `@PrimaryKeyJoinColumn` annotation we already mentioned above establishes the relationship between the subclass tables and the base class table. This setup uses the primary key of the base class (`ID`) as the foreign key in the subclass tables. When executing queries involving joined inheritance, `LEFT JOIN` operations are performed between the base class table (`PETCLINIC_PET`) and each of the subclass tables (`PETCLINIC_BIRD`, `PETCLINIC_CAT`), ensuring all necessary data is combined for accurate representation of the inheritance hierarchy.
+
+The use of `LEFT JOIN` is necessary because a record in the base class table (`PETCLINIC_PET`) corresponds to data in at most one of the subclass tables (`PETCLINIC_BIRD`, `PETCLINIC_CAT`) or none at all. This means that for a given base class record, there will typically be no data in the other subclass tables. A `LEFT JOIN` ensures that the query result includes the base class record even when no matching data is found in the subclass tables, preserving the integrity of the polymorphic query.
 
 For example, the following result set might be produced by a query fetching all `Pet` entities:
 
@@ -382,6 +384,17 @@ For example, the following result set might be produced by a query fetching all 
 - The `DTYPE` column indicates the subclass (`petclinic_Bird` or `petclinic_Cat`).
 - Fields like `WINGSPAN` and `LITTER_BOX_TRAINED` are only populated for rows that belong to their respective subclasses.
 - Null values in subclass-specific fields reflect that the corresponding record does not belong to that subclass.
+
+[WARNING]
+====
+**Considerations for Joined Table Inheritance with Deep Hierarchies**
+
+When using Joined Table Inheritance, it’s important to understand the performance implications of having a large number of subtypes or multi-level inheritance hierarchies. As the number of subtypes and sub-subtypes increases, the complexity of SQL queries for polymorphic queries grows significantly. Each additional subtype or hierarchy level introduces a new `LEFT JOIN` operation, increasing the query execution time.
+
+This warning is particularly relevant when performing polymorphic JPQL queries, such as `SELECT e FROM petclinic_Pet e`, which retrieve entities across the entire inheritance hierarchy. While databases are optimized for handling joins, large datasets combined with 10–15 or more subtypes or levels can lead to slow query performance, depending on indexing, amount of data and the database system in use.
+
+For most use cases with a reasonable number of subtypes and properly indexed tables, Joined Table Inheritance performs efficiently. However, when working with a high number of subtypes or large datasets, consider alternative strategies like Single Table Inheritance or breaking the hierarchy into smaller structures to maintain acceptable query performance.
+====
 
 [[joined-table-inheritance-ui]]
 === UI Representation
@@ -431,9 +444,16 @@ One difference is that we are now able to create `NOT NULL` subclass fields. The
 [[table-per-class-inheritance]]
 == Table-Per-Class Inheritance
 
-Table-Per-Class Inheritance maps each subclass to its own database table without using a shared base table. Each table contains the attributes specific to the subclass, including those inherited from the base class. This strategy can be appealing when queries are predominantly executed on specific subclasses, as it avoids the need for joins between a base table and subclass tables, simplifying queries and potentially improving performance for such cases.
+Table-Per-Class Inheritance maps each subclass to its own database table without using a shared base table. Each table contains the attributes specific to the subclass, including those inherited from the base class.
 
-However, the trade-offs of this approach are significant. Queries that span multiple subclasses (polymorphic queries) require `UNION` operations across the subclass tables. These operations are computationally expensive and can lead to poor performance, especially with large datasets.
+[NOTE]
+====
+*What's the difference to a mapped superclass?*
+
+Both `@MappedSuperclass` and Table-Per-Class Inheritance involve dedicated tables for entities. However, Table-Per-Class Inheritance allows for polymorphic queries, which is not possible with a `@MappedSuperclass`. Additionally, in Table-Per-Class Inheritance, the superclass itself may also have its own table, depending on its configuration, enabling more flexible data organization.
+====
+
+This strategy can be appealing when queries are predominantly executed on specific subclasses, as it avoids the need for joins between a base table and subclass tables, simplifying queries and potentially improving performance for such cases. However, the trade-offs of this approach are significant. Queries that span multiple subclasses (polymorphic queries) require `UNION` operations across the subclass tables. These operations are computationally expensive and can lead to poor performance, especially with large datasets.
 
 [WARNING]
 ====
@@ -452,7 +472,7 @@ In most cases, it is better to use other inheritance strategies:
 [[multilevel-inheritance]]
 == Multilevel Inheritance
 
-Although we only looked at one level-hierarchies, it’s worth mentioning that JPA also support multilevel inheritance. This means you can create deeper hierarchies with multiple levels of subclasses, such as having a `Bird` subclass of `Pet`, and further specialized subclasses like `Parrot` or `Owl`. Each level of the hierarchy can define its own fields and behaviors, and JPA will handle the mapping and querying appropriately based on the selected inheritance strategy.
+Although we only looked at one level-hierarchies, it’s worth mentioning that JPA also support multilevel inheritance. This means you can create deeper hierarchies with multiple levels of subclasses, such as having a `Bird` subclass of `Pet`, and further specialized subclasses like `Waterbird` or `Raptor`. Each level of the hierarchy can define its own fields and behaviors, and JPA will handle the mapping and querying appropriately based on the selected inheritance strategy.
 
 Multilevel inheritance can be useful for highly detailed domain models where entities need to represent increasingly specific types. However, it’s important to carefully evaluate whether the added complexity aligns with the application’s requirements, as deeper hierarchies can lead to more complex queries and maintenance challenges.
 
