@@ -17,7 +17,7 @@ If you want to implement this guide step by step, you will need the following:
 * or clone it using git:
 `git clone https://github.com/jmix-framework/{sample-project}.git`
 
-Alternatively, you can **start with the base Petclinic project** and follow the step-by-step instructions in this guide to implement the features yourself: https://github.com/jmix-framework/jmix-petclinic-2[Jmix Petclinic] and follow along to add the functionality step-by-step.
+Alternatively, you can **start with the base https://github.com/jmix-framework/jmix-petclinic-2[Jmix Petclinic^] project** and follow the step-by-step instructions in this guide to implement the features yourself.
 
 [[what-we-are-going-to-build]]
 == What We are Going to Build
@@ -75,12 +75,12 @@ This feature simplifies working with inheritance hierarchies. The "heavy lifting
 [[mapped-superclass]]
 == Mapped Superclass
 
-The `@MappedSuperclass` is the first option to define shared attributes and behavior in a base class without creating a corresponding database table for the superclass. This approach helps for scenarios where entities share common fields, but there is no need for polymorphic querying or explicit relationships between those entities in the database. Strictly speaking it does not an official "inheritance strategy", but still of it is quite often used to introduce a hierarchy in the Java domain model.
+The `@MappedSuperclass` is the first option to define shared attributes and behavior in a base class without creating a corresponding database table for the superclass. This approach helps for scenarios where entities share common fields, but there is no need for polymorphic querying or explicit relationships between those entities in the database. Strictly speaking it is not an official "inheritance strategy", but still it is quite often used to introduce a hierarchy in the Java domain model.
 
 [[mapped-superclass-datamodel]]
 === Data Model
 
-In the Petclinic application, the `NamedEntity` class illustrates this concept. It defines common system attributes such as `id`, `version`, auditing fields (`createdBy`, `createdDate`, etc.), and a `name` field Subclasses of `NamedEntity` inherit these attributes, which keeps your entities source code cleaner.
+In the Petclinic application, the `NamedEntity` class illustrates this concept. It defines common system attributes such as `id`, `version`, auditing fields (`createdBy`, `createdDate`, etc.), and a `name` field. Subclasses of `NamedEntity` inherit these attributes, which keeps your entities source code cleaner.
 
 .NamedEntity.java
 [source,java,indent=0]
@@ -88,10 +88,10 @@ In the Petclinic application, the `NamedEntity` class illustrates this concept. 
 include::example$src/main/java/io/jmix/petclinic/entity/NamedEntity.java[tags=start-class;end-class]
 ----
 
-The `NamedEntity` superclass is inherited by several entities, including `Pet`, `PetType`, and `Specialty`. As you can see in the source code, the `NamedEntity` does not have an `@Table` annotation. This means there is no corresponding table for the `NamedEntity` itself in the database. Instead, only its subclasses, such as `Pet` and `PetType`, define their own database tables.
+The `NamedEntity` superclass is inherited by several entities, including `Pet`, `PetType`, and `Specialty`. As you can see in the source code, the `NamedEntity` does not have a `@Table` annotation. This means there is no corresponding table for the `NamedEntity` itself in the database. Instead, only its subclasses, such as `Pet` and `PetType`, define their own database tables.
 
 .PetType.java
-[source,jpaql,indent=0]
+[source,java,indent=0]
 ----
 include::example$src/main/java/io/jmix/petclinic/entity/pet/PetType.java[]
 ----
@@ -111,7 +111,7 @@ image::mapped-superclass.svg[]
 Because `NamedEntity` does not have a corresponding table in the database, it cannot be queried directly or by using a polymorphic query. For instance, the following query is **not valid**:
 
 .Invalid query (not supported for `@MappedSuperclass`)
-[source,jpaql,indent=0]
+[source,jpql,indent=0]
 ----
 SELECT n
 FROM petclinic_NamedEntity n
@@ -121,7 +121,7 @@ WHERE n.name = :name
 Instead, queries have to be performed on the specific subclasses. For example:
 
 .Query by the `name` field in `Specialty`
-[source,jpaql,indent=0]
+[source,jpql,indent=0]
 ----
 SELECT s
 FROM petclinic_Specialty s
@@ -139,7 +139,7 @@ As we discussed earlier in the <<discriminator-column>> section, JPA provides a 
 
 This approach offers simplicity in querying and efficient read operations, as all data resides in one table. However, it comes with the trade-off of potentially large tables with many nullable columns for subclass-specific fields.
 
-[WARNING]
+[CAUTION]
 ====
 **Required Fields on Subclasses**
 
@@ -168,7 +168,7 @@ include::example$src/main/java/io/jmix/petclinic/entity/visit/Visit.java[tags=im
 .RegularCheckup.java
 [source,java,indent=0]
 ----
-include::example$src/main/java/io/jmix/petclinic/entity/visit/RegularCheckup.java[]
+include::example$src/main/java/io/jmix/petclinic/entity/visit/RegularCheckup.java[tags=class]
 ----
 
 .EmergencyVisit.java
@@ -177,7 +177,7 @@ include::example$src/main/java/io/jmix/petclinic/entity/visit/RegularCheckup.jav
 include::example$src/main/java/io/jmix/petclinic/entity/visit/EmergencyVisit.java[]
 ----
 
-The subclasses mainly `extend Visit` indicating that it inherits all attributes and is stored in the `VISIT` table as indicated by the Visit entity. Additionally, the subclasses define the value of the discriminator column for this specific subclass via the `@DiscriminatorValue` annotation: `REGULAR_CHECKUP` or `EMERGENCY_VISIT`.
+The subclasses mainly extend `Visit` indicating that they inherit all attributes and are stored in the `VISIT` table as specified for the `Visit` entity. Additionally, the subclasses define the value of the discriminator column for this specific subclass via the `@DiscriminatorValue` annotation: `REGULAR_CHECKUP` or `EMERGENCY_VISIT`.
 
 
 [[single-table-inheritance-databaseschema]]
@@ -210,7 +210,7 @@ Here is how this is implemented in the controller when creating a new visit:
 ----
 include::example$src/main/java/io/jmix/petclinic/view/visit/VisitListView.java[tags=start-class;type-selection;end-class]
 ----
-<1> The `visitTypes` map is created and passed set as the items for the select component.
+<1> The `visitTypes` map is created and passed as the items for the select component.
 <2> After the user confirms their selection, the selected visit type class is retrieved from the dialog's result via `closeEvent.getValue("type")`.
 <3> The `viewNavigators.detailView` method navigates to the detail view for the selected visit type, creating a new instance of the entity and showing its specific fields.
 
@@ -385,7 +385,7 @@ For example, the following result set might be produced by a query fetching all 
 - Fields like `WINGSPAN` and `LITTER_BOX_TRAINED` are only populated for rows that belong to their respective subclasses.
 - Null values in subclass-specific fields reflect that the corresponding record does not belong to that subclass.
 
-[WARNING]
+[CAUTION]
 ====
 **Considerations for Joined Table Inheritance with Deep Hierarchies**
 

@@ -1,3 +1,4 @@
+// tag::class[]
 package io.jmix.petclinic.entity.visit;
 
 import io.jmix.core.metamodel.annotation.JmixEntity;
@@ -39,3 +40,4 @@ public class RegularCheckup extends Visit {
 // tag::end-class[]
 }
 // end::end-class[]
+// end::class[]
