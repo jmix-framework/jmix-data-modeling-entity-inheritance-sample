@@ -38,7 +38,7 @@
             <tab id="petsTab" label="msg://io.jmix.petclinic.entity.owner/Owner.pets">
                 <vbox width="100%">
                     <hbox id="buttonsPanel" classNames="buttons-panel">
-                        <dropdownButton id="createBtn" icon="PLUS" text="msg://create" themeNames="icon">
+                        <dropdownButton id="createBtn" icon="PLUS" text="msg://create">
                             <items>
                                 <actionItem id="createPet" ref="petsDataGrid.createPet"/>
                                 <actionItem id="createCat" ref="petsDataGrid.createCat"/>
