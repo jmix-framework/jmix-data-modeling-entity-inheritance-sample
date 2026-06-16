@@ -50,7 +50,7 @@
                     dataLoader="petsDl"
                     labelPosition="TOP"
                     label="msg://io.jmix.petclinic.entity.pet/Pet.identificationNumber"
-            />
+                    operationTextVisible="false"/>
             <propertyFilter
                     id="typeFilter"
                     property="type"
@@ -58,14 +58,14 @@
                     dataLoader="petsDl"
                     labelPosition="TOP"
                     label="msg://io.jmix.petclinic.entity.pet/Pet.type"
-            />
+                    operationTextVisible="false"/>
             <propertyFilter
                     id="ownerFilter"
                     property="owner"
                     operation="EQUAL"
                     dataLoader="petsDl"
                     labelPosition="TOP"
-                    label="msg://io.jmix.petclinic.entity.pet/Pet.owner">
+                    label="msg://io.jmix.petclinic.entity.pet/Pet.owner" operationTextVisible="false">
 
                 <entityComboBox metaClass="petclinic_Owner" itemsContainer="ownersDc" />
             </propertyFilter>
@@ -77,7 +77,7 @@
         </genericFilter>
         <!-- tag::pet-create-dropdown[] -->
         <hbox id="buttonsPanel" classNames="buttons-panel">
-            <dropdownButton id="createBtn" icon="PLUS" text="msg://create" themeNames="icon"> <!--1-->
+            <dropdownButton id="createBtn" icon="PLUS" text="msg://create"> <!--1-->
             <items>
                 <actionItem id="createPet" ref="petsDataGrid.createPet"/>
                 <actionItem id="createCat" ref="petsDataGrid.createCat"/>
